@@ -11,7 +11,7 @@ from students.models import Student, Course
 #api-client fixture
 @pytest.fixture
 def client():
-    return APIClient
+    return APIClient()
 
 #user
 @pytest.fixture
@@ -27,7 +27,7 @@ def course_factory():
 
 # student factory fixture
 @pytest.fixture
-def course_factory():
+def student_factory():
     def factory(*args, **kwargs):
         return baker.make(Student, *args, **kwargs)
     return factory
@@ -49,6 +49,7 @@ def test_get_first_course(user, client, course_factory):
 
     assert response_course_name == course[0].name
 
+# test get courses list
 @pytest.mark.django_db
 def test_get_courses_list(user, client, course_factory):
     courses = course_factory(_quantity=10)
@@ -103,7 +104,7 @@ def test_check_name_filter(user, client, course_factory):
 def test_create_course(client, user):
     data = {'name': 'python-developer'}
     response = client.post(
-        path='/api/v1/courses',
+        path='/api/v1/courses/',
         data=data,
     )
     assert response.status_code == 201
@@ -116,10 +117,10 @@ def test_update_course(course_factory, client, user):
     courses = course_factory(_quantity=2)
     new_data = {'pk': courses[0].pk, 'name': 'update_name'}
 
-    patch_response = client.patch(path='/api/v1/courses/{courses[0].pk}/')
+    patch_response = client.patch(path=f'/api/v1/courses/{courses[0].pk}/')
     assert patch_response.status_code == 200
 
-    get_response = client.get(path='/api/v1/courses/{courses[0].pk}/')
+    get_response = client.get(path=f'/api/v1/courses/{courses[0].pk}/')
     data = get_response.json()
 
     assert data.get('name') == new_data.get('name')
@@ -130,7 +131,7 @@ def test_delete_course(user, client, course_factory):
     courses = course_factory(_quantity=5)
     count = Course.objects.count()
 
-    response = client.delete(path='/api/v1/courses/{courses[0].pk}/')
+    response = client.delete(path=f'/api/v1/courses/{courses[0].pk}/')
     assert response.status_code == 204
 
     next_count = Course.objects.count()
