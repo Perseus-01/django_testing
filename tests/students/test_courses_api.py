@@ -86,13 +86,13 @@ def test_check_name_filter(user, client, course_factory):
     courses = course_factory(_quantity=10)
     course_id = courses[0].pk
     course_name = courses[0].name
-    fitler_data = {
-        'id': course_id,
+    filter_data = {
+        # 'id': course_id,
         'name': course_name,
     }
 
     url = reverse('courses-list')
-    response = client.get(url, data=fitler_data)
+    response = client.get(url, data=filter_data)
 
     assert response.status_code == 200
 
@@ -117,7 +117,7 @@ def test_update_course(course_factory, client, user):
     courses = course_factory(_quantity=2)
     new_data = {'pk': courses[0].pk, 'name': 'update_name'}
 
-    patch_response = client.patch(path=f'/api/v1/courses/{courses[0].pk}/')
+    patch_response = client.patch(path=f'/api/v1/courses/{courses[0].pk}/', data=new_data)
     assert patch_response.status_code == 200
 
     get_response = client.get(path=f'/api/v1/courses/{courses[0].pk}/')
